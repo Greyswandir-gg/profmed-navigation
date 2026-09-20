@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#12303d">
+  <title>ПрофМед — как пройти к кабинету</title>
+  <meta name="description" content="Найдите маршрут между кабинетами и окнами на 2 и 3 этажах ПрофМед.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312303d'/%3E%3Cpath d='M32 12v40M12 32h40' stroke='%2356d5bb' stroke-width='9'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/map-data.js" defer></script>
+  <script src="/app.js" defer></script>
+</head>
+<body>
+<header>
+  <div class="brand"><img class="brand-logo" src="/logo.svg" alt="ПрофМед"><span class="brand-subtitle">Навигация пациента</span></div>
+  <button id="qr-toggle" class="header-link" type="button">QR-коды для печати ↗</button>
+</header>
+<main>
+  <div class="intro">
+    <div><div class="eyebrow">ЕКАТЕРИНБУРГ · ПЕРВОМАЙСКАЯ, 77 · ВХОД № 10</div><h1>Как пройти?</h1><p>Укажите, где вы сейчас, и выберите, куда хотите попасть.</p></div>
+    <div id="location" class="location" aria-live="polite"></div>
+  </div>
+  <div class="workspace">
+    <aside class="search-panel" aria-label="Построить маршрут">
+      <div class="route-step">
+        <div class="step-heading"><span class="step-index">1</span><label for="from-select">Где вы сейчас?</label></div>
+        <p class="step-help">Выберите кабинет или окно рядом с вами.</p>
+        <select id="from-select" class="location-select"><option value="">Выберите своё положение</option></select>
+        <button id="change-source" class="change-source" type="button" hidden>Выбрать другое место</button>
+      </div>
+      <div id="destination-step" class="route-step destination-step locked">
+        <div class="step-heading"><span class="step-index">2</span><label for="search">Куда нужно пройти?</label></div>
+        <p class="step-help" id="destination-help">Сначала укажите, где вы находитесь.</p>
+        <div class="search-field"><span>⌕</span><input id="search" type="search" placeholder="Номер, окно или специалист" autocomplete="off" disabled></div>
+        <div class="filter" role="group" aria-label="Фильтр этажей"><button data-filter="all" type="button" disabled>Все</button><button data-filter="2" type="button" disabled>2 этаж</button><button data-filter="3" type="button" disabled>3 этаж</button></div>
+        <button id="destination-toggle" type="button" hidden>Изменить назначение</button><div id="results" class="results" aria-label="Куда пройти"></div>
+      </div>
+
+    </aside>
+    <section class="map-section">
+      <div class="map-top"><div><div class="eyebrow">НАВИГАЦИЯ ПО КЛИНИКЕ</div><h2 id="floor-title">2 этаж</h2></div><div class="floor-switch" role="group" aria-label="Показать этаж"><button data-floor="2" type="button">2 этаж</button><button data-floor="3" type="button">3 этаж</button></div></div>
+      <div id="route-summary" class="route-summary" aria-live="polite"></div>
+      <div class="map-tools"><span>Двигайте карту пальцем</span><button id="zoom-out" aria-label="Уменьшить карту">−</button><button id="zoom-in" aria-label="Увеличить карту">+</button><button id="zoom-fit">Весь этаж</button><button id="zoom-route">Маршрут</button></div><div class="map-scroll"><div id="map" class="map" aria-label="Схема этажа"></div></div>
+      <div class="legend"><span><i class="dot dot-teal"></i> Вы сейчас</span><span><i class="dot dot-red"></i> Куда пройти</span><span><i class="line-blue"></i> Маршрут</span></div>
+      <p class="map-caption">Кабинеты и окна можно выбрать прямо на карте. Т — туалет. Красные зоны закрыты для пациентов. Планы служат для навигации и не заменяют планы эвакуации.</p>
+    </section>
+  </div>
+  <section id="qr-section" class="qr-section" hidden>
+    <div class="qr-heading"><div><div class="eyebrow">ДЛЯ АДМИНИСТРАТОРА</div><h2>QR-коды для размещения</h2></div><button type="button" id="qr-close" aria-label="Закрыть">×</button></div>
+    <p>Каждый код открывает навигатор. Пациент выбирает кабинет или окно, где он находится, и пункт назначения. Перед размещением проверьте подписи к кодам на месте.</p>
+    <div id="qr-grid" class="qr-grid"></div>
+  </section>
+</main>
+<footer>ПрофМед · Кабинеты профосмотра · При затруднении обратитесь к администратору.</footer>
+</body>
+</html>
