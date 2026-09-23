@@ -12,11 +12,14 @@ cd /opt/profmed-navigation
 cp .env.example .env
 ```
 
-В `.env` укажите токен того же Telegram-бота и chat id, куда слать статистику и ответы опроса:
+В `.env` укажите токен того же Telegram-бота и chat id, куда слать статистику и ответы опроса.
+
+Если сервер в РФ и `api.telegram.org` недоступен, добавьте прокси с этого хоста:
 
 ```
 TELEGRAM_BOT_TOKEN=...
 TELEGRAM_CHAT_ID=...
+TELEGRAM_API_BASE=https://tgapi.crimsonblomhost.ru
 ```
 
 Сеть в `docker-compose.yml` сейчас `localai_default`. Если на новом сервере сеть называется иначе — поправьте имя, либо создайте её:

@@ -65,11 +65,15 @@ def read_chat_id() -> str:
     return (os.environ.get("TELEGRAM_CHAT_ID") or "").strip()
 
 
+def telegram_api_base() -> str:
+    return (os.environ.get("TELEGRAM_API_BASE") or "https://api.telegram.org").strip().rstrip("/")
+
+
 def telegram_api(method: str, payload: dict[str, Any] | None = None) -> dict[str, Any]:
     token = telegram_token()
     if not token:
         return {}
-    url = f"https://api.telegram.org/bot{token}/{method}"
+    url = f"{telegram_api_base()}/bot{token}/{method}"
     data = None if payload is None else json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
         url,
