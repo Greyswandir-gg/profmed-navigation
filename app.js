@@ -1,10 +1,9 @@
 const qs=s=>document.querySelector(s);
 const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const params=new URLSearchParams(location.search),qrHint=QR_POINTS[params.get('point')]||null;
 const rooms=[2,3].flatMap(f=>FLOORS[f].rooms.map(r=>({...r,floor:f})));
-const landmarks=Object.entries(QR_POINTS).map(([key,p])=>({id:`point:${key}`,name:p.name,floor:p.floor,position:p.position,kind:'landmark'}));
+const landmarks=Object.entries(LANDMARKS).map(([key,p])=>({id:`point:${key}`,name:p.name,floor:p.floor,position:p.position,kind:'landmark'}));
 const places=[...rooms,...landmarks],byId=id=>places.find(p=>p.id===id),shortName=r=>r.short||r.name;
-let source=null,target=null,floor=qrHint?.floor||2,filter='all',zoom=window.innerWidth<760?3:1;
+let source=null,target=null,floor=2,filter='all',zoom=window.innerWidth<760?3:1;
 let choosing=true;
 
 function labelFor(r){return r.id==='201'?`Окно 201 · ${r.name}`:r.id.startsWith('win-')||r.id.startsWith('wc-')||r.id==='wardrobe'||r.kind==='landmark'||r.name===`Кабинет ${r.id}`?r.name:`Кабинет ${r.id} · ${r.name}`}
@@ -45,7 +44,7 @@ function map(){
 }
 function renderLocation(){
   qs('#location').innerHTML=source?`<b>● Вы сейчас: ${safe(labelFor(source))}</b><button type="button" class="location-edit" id="from-shortcut">Изменить место ↗</button>`:
-    `<b>○ Где вы сейчас?</b>${qrHint?`Код расположен: ${safe(qrHint.name)}. Укажите кабинет, окно или ориентир рядом с вами.`:'Выберите кабинет, окно или ориентир рядом с вами.'}`;
+    `<b>○ Где вы сейчас?</b>Выберите кабинет, окно или ориентир рядом с вами.`;
   const shortcut=qs('#from-shortcut');if(shortcut)shortcut.onclick=focusSource;
 }
 function renderResults(){
@@ -63,13 +62,13 @@ function renderSummary(){
   let title,detail='',action='';
   if(!source)title='Шаг 1. Выберите, где вы сейчас';
   else if(!target){title='Шаг 2. Выберите, куда хотите пройти';detail=`Ваше положение: ${labelFor(source)}.`}
-  else if(source.id===target.id){title='Вы уже в нужном месте';detail=labelFor(target)}
-  else if(source.floor===target.floor){title=`Маршрут к ${labelFor(target)}`;detail=`${source.floor} этаж: от ${labelFor(source)} до ${labelFor(target)}. Следуйте по синей линии.`}
+  else if(source.id===target.id){title='Вы уже в нужном месте';detail=labelFor(target)+queueHint(target)}
+  else if(source.floor===target.floor){title=`Маршрут к ${labelFor(target)}`;detail=`${source.floor} этаж: от ${labelFor(source)} до ${labelFor(target)}. Следуйте по синей линии.`+queueHint(target)}
   else{
     const onSource=floor===source.floor;
     const atStair=source.kind==='landmark'&&source.position===FLOORS[source.floor].stair;
     title=onSource?(atStair?`${source.floor} этаж · вы уже у лестницы`:`${source.floor} этаж · пройдите к лестнице`):`${target.floor} этаж · от лестницы к ${labelFor(target)}`;
-    detail=onSource?`${atStair?'':'Начало: '+labelFor(source)+'. '}Перейдите на ${target.floor} этаж.`:`Конец маршрута: ${labelFor(target)}.`;
+    detail=onSource?`${atStair?'':'Начало: '+labelFor(source)+'. '}Перейдите на ${target.floor} этаж.`:`Конец маршрута: ${labelFor(target)}.${queueHint(target)}`;
     action=`<button type="button" class="next-floor" data-switch-floor="${onSource?target.floor:source.floor}">${onSource?`Показать ${target.floor} этаж →`:`← Показать ${source.floor} этаж`}</button>`;
   }
   qs('#route-summary').innerHTML=`<strong>${safe(title)}</strong>${detail?`<span class="route-steps">${safe(detail)}</span>`:''}${action}`;
@@ -91,9 +90,74 @@ qs('#search').addEventListener('input',renderResults);
 qs('#destination-toggle').onclick=()=>{choosing=!choosing;render();if(choosing)qs('#search').focus()};
 document.querySelectorAll('[data-floor]').forEach(b=>b.onclick=()=>{floor=Number(b.dataset.floor);render()});
 document.querySelectorAll('[data-filter]').forEach(b=>b.onclick=()=>{filter=b.dataset.filter;renderResults()});
-qs('#qr-grid').innerHTML=Object.entries(QR_POINTS).map(([id,p])=>`<div class="qr-card"><img src="/qr-${id}.png" alt="QR-код ${safe(p.name)}"><b>${safe(p.name)}</b><a href="/?point=${id}" target="_blank" rel="noopener">Проверить код ↗</a></div>`).join('');
-qs('#qr-toggle').onclick=()=>{qs('#qr-section').hidden=false;qs('#qr-section').scrollIntoView({behavior:'smooth'})};
-qs('#qr-close').onclick=()=>{qs('#qr-section').hidden=true;window.scrollTo({top:0,behavior:'smooth'})};
+function queueHint(place){
+  if(place?.id==='20')return ' Кабинет 20: спирометрия — по электронной очереди, аудиометрия — зайдите сразу, вне очереди.';
+  if(place?.id==='209')return ' Кабинет 209 принимает по живой очереди, без монитора.';
+  return '';
+}
+qs('#queue-modal-close').onclick=()=>{
+  document.body.classList.remove('queue-open');
+  qs('#queue-modal').hidden=true;
+};
+function showView(view){
+  const survey=view==='survey';
+  document.body.classList.toggle('view-survey',survey);
+  qs('#nav-view').hidden=survey;
+  qs('#survey-view').hidden=!survey;
+  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===view));
+  if(!survey){
+    render();
+    if(location.hash==='#queue')qs('#queue')?.scrollIntoView({behavior:'smooth'});
+  }else{
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+}
+document.querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{
+  if(b.dataset.view==='nav')history.replaceState(null,'',location.pathname);
+  showView(b.dataset.view);
+});
+qs('#queue-link').addEventListener('click',e=>{
+  e.preventDefault();
+  history.replaceState(null,'','#queue');
+  showView('nav');
+  qs('#queue')?.scrollIntoView({behavior:'smooth'});
+});
+fetch('/api/visit',{method:'POST',credentials:'include'}).catch(()=>{});
+document.querySelectorAll('.score-grid input').forEach(input=>{
+  input.addEventListener('change',()=>{
+    document.querySelectorAll('.score-grid label').forEach(label=>label.classList.toggle('on',label.contains(input)&&input.checked));
+  });
+});
+qs('#survey-form').addEventListener('submit',async e=>{
+  e.preventDefault();
+  const status=qs('#survey-status'),btn=qs('#survey-submit');
+  const age=Number(qs('#survey-age').value);
+  const scoreEl=qs('#survey-form input[name="score"]:checked');
+  if(!scoreEl){status.hidden=false;status.className='survey-status error';status.textContent='Выберите оценку от 1 до 10.';return}
+  btn.disabled=true;
+  status.hidden=false;
+  status.className='survey-status';
+  status.textContent='Отправляем…';
+  try{
+    const res=await fetch('/api/survey',{
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({age,score:Number(scoreEl.value),comment:qs('#survey-comment').value.trim()})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(typeof data.detail==='string'?data.detail:'Не удалось отправить');
+    status.className='survey-status ok';
+    status.textContent='Спасибо. Ответ отправлен.';
+    qs('#survey-form').reset();
+  }catch(err){
+    status.className='survey-status error';
+    status.textContent=err.message||'Не удалось отправить. Попробуйте ещё раз.';
+    btn.disabled=false;
+    return;
+  }
+  btn.disabled=false;
+});
 render();
 
 function applyZoom(){const el=qs('#map');el.style.width=`${zoom*100}%`;el.style.minWidth='0'}

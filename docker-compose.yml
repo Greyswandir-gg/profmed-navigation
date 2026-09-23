@@ -1,0 +1,21 @@
+services:
+  profmed:
+    build: .
+    container_name: profmed-navigation
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      SITE_ROOT: /app/site
+      DATA_DIR: /data
+      TZ: Asia/Yekaterinburg
+    volumes:
+      - /opt/profmed-navigation/data:/data
+      - /opt/profmed-navigation/.env:/app/.env:ro
+    networks:
+      - localai_default
+    expose:
+      - "8080"
+
+networks:
+  localai_default:
+    external: true

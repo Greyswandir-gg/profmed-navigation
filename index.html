@@ -5,18 +5,62 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#12303d">
   <title>ПрофМед — как пройти к кабинету</title>
-  <meta name="description" content="Найдите маршрут между кабинетами и окнами на 2 и 3 этажах ПрофМед.">
+  <meta name="description" content="Маршруты по 2 и 3 этажам ПрофМед и правила электронной очереди.">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2312303d'/%3E%3Cpath d='M32 12v40M12 32h40' stroke='%2356d5bb' stroke-width='9'/%3E%3C/svg%3E">
   <link rel="stylesheet" href="/styles.css">
   <script src="/map-data.js" defer></script>
   <script src="/app.js" defer></script>
 </head>
-<body>
+<body class="queue-open">
+<div id="queue-modal" class="queue-modal" role="dialog" aria-modal="true" aria-labelledby="queue-modal-title">
+  <div class="queue-modal-card">
+    <div class="queue-heading">
+      <div class="eyebrow">ПРОЧТИТЕ ПЕРЕД ОСМОТРОМ</div>
+      <h2 id="queue-modal-title">Правила электронной очереди</h2>
+    </div>
+    <p class="queue-lead">После получения карты в одном из окон на ней будет номер вида <b>Я001</b>. Вам назовут первый кабинет — например, <b>202</b>. Дальше смотрите на монитор и ждите, когда этот номер появится у нужного кабинета. Как только номер высветился — заходите: вас уже ждут. В кабинете скажут, куда идти следующим.</p>
+    <ol class="queue-steps">
+      <li><b>Получите карту</b> в одном из окон. На карте номер формата «Я001».</li>
+      <li><b>Запомните первый кабинет</b>, который вам назовут.</li>
+      <li><b>Смотрите на монитор</b> и ждите свой номер.</li>
+      <li><b>Когда номер появился</b> — проходите в кабинет.</li>
+      <li><b>Следующий кабинет</b> вам скажут уже там.</li>
+    </ol>
+    <div class="queue-exceptions">
+      <h3>Где очередь работает иначе</h3>
+      <div class="queue-cards">
+        <article class="queue-card">
+          <div class="queue-card-num">20</div>
+          <div>
+            <h4>Кабинет 20 — две процедуры</h4>
+            <ul>
+              <li><b>Спирометрия</b> — по электронной очереди, ждите номер на мониторе.</li>
+              <li><b>Аудиометрия</b> — живое обращение вне очереди: зайдите в кабинет сразу, не ждите номер на мониторе.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="queue-card">
+          <div class="queue-card-num">209</div>
+          <div>
+            <h4>Кабинет 209 — живая очередь</h4>
+            <p>Монитор здесь не используется. Подойдите к кабинету и ожидайте приёма в порядке живой очереди.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+    <button type="button" id="queue-modal-close" class="queue-modal-close">Понятно, перейти к карте</button>
+  </div>
+</div>
 <header>
   <div class="brand"><img class="brand-logo" src="/logo.svg" alt="ПрофМед"><span class="brand-subtitle">Навигация пациента</span></div>
-  <button id="qr-toggle" class="header-link" type="button">QR-коды для печати ↗</button>
+  <nav class="header-nav" aria-label="Разделы сайта">
+    <button type="button" class="tab-btn active" data-view="nav">Как пройти</button>
+    <button type="button" class="tab-btn" data-view="survey">Опрос</button>
+    <a class="header-link" href="#queue" id="queue-link">Электронная очередь</a>
+  </nav>
 </header>
 <main>
+  <div id="nav-view">
   <div class="intro">
     <div><div class="eyebrow">ЕКАТЕРИНБУРГ · ПЕРВОМАЙСКАЯ, 77 · ВХОД № 10</div><h1>Как пройти?</h1><p>Укажите, где вы сейчас, и выберите, куда хотите попасть.</p></div>
     <div id="location" class="location" aria-live="polite"></div>
@@ -46,10 +90,77 @@
       <p class="map-caption">Кабинеты и окна можно выбрать прямо на карте. Т — туалет. Красные зоны закрыты для пациентов. Планы служат для навигации и не заменяют планы эвакуации.</p>
     </section>
   </div>
-  <section id="qr-section" class="qr-section" hidden>
-    <div class="qr-heading"><div><div class="eyebrow">ДЛЯ АДМИНИСТРАТОРА</div><h2>QR-коды для размещения</h2></div><button type="button" id="qr-close" aria-label="Закрыть">×</button></div>
-    <p>Каждый код открывает навигатор. Пациент выбирает кабинет или окно, где он находится, и пункт назначения. Перед размещением проверьте подписи к кодам на месте.</p>
-    <div id="qr-grid" class="qr-grid"></div>
+  <section id="queue" class="queue-section">
+    <div class="queue-heading">
+      <div class="eyebrow">КАК ПРОХОДИТЬ ОСМОТР</div>
+      <h2>Правила электронной очереди</h2>
+    </div>
+    <p class="queue-lead">После получения карты в одном из окон на ней будет номер вида <b>Я001</b>. Вам назовут первый кабинет — например, <b>202</b>. Дальше смотрите на монитор и ждите, когда этот номер появится у нужного кабинета. Как только номер высветился — заходите: вас уже ждут. В кабинете скажут, куда идти следующим.</p>
+    <ol class="queue-steps">
+      <li><b>Получите карту</b> в одном из окон. На карте номер формата «Я001».</li>
+      <li><b>Запомните первый кабинет</b>, который вам назовут.</li>
+      <li><b>Смотрите на монитор</b> и ждите свой номер.</li>
+      <li><b>Когда номер появился</b> — проходите в кабинет.</li>
+      <li><b>Следующий кабинет</b> вам скажут уже там.</li>
+    </ol>
+    <div class="queue-exceptions">
+      <h3>Где очередь работает иначе</h3>
+      <div class="queue-cards">
+        <article class="queue-card">
+          <div class="queue-card-num">20</div>
+          <div>
+            <h4>Кабинет 20 — две процедуры</h4>
+            <ul>
+              <li><b>Спирометрия</b> — по электронной очереди, ждите номер на мониторе.</li>
+              <li><b>Аудиометрия</b> — живое обращение вне очереди: зайдите в кабинет сразу, не ждите номер на мониторе.</li>
+            </ul>
+          </div>
+        </article>
+        <article class="queue-card">
+          <div class="queue-card-num">209</div>
+          <div>
+            <h4>Кабинет 209 — живая очередь</h4>
+            <p>Монитор здесь не используется. Подойдите к кабинету и ожидайте приёма в порядке живой очереди.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+  </div>
+  <section id="survey-view" class="survey-section" hidden>
+    <div class="queue-heading">
+      <div class="eyebrow">ОБРАТНАЯ СВЯЗЬ</div>
+      <h2>Опрос для улучшения сайта</h2>
+    </div>
+    <p class="queue-lead">Ответы анонимные. Они помогают сделать навигатор понятнее для следующих пациентов.</p>
+    <form id="survey-form" class="survey-form">
+      <label class="survey-field">
+        <span>Ваш возраст</span>
+        <input id="survey-age" name="age" type="number" inputmode="numeric" min="10" max="120" required placeholder="Например, 42">
+      </label>
+      <fieldset class="survey-field">
+        <legend>Насколько сайт помог пройти комиссию?</legend>
+        <p class="step-help">1 — почти не помог, 10 — очень помог.</p>
+        <div class="score-grid" role="radiogroup" aria-label="Оценка от 1 до 10">
+          <label><input type="radio" name="score" value="1" required>1</label>
+          <label><input type="radio" name="score" value="2">2</label>
+          <label><input type="radio" name="score" value="3">3</label>
+          <label><input type="radio" name="score" value="4">4</label>
+          <label><input type="radio" name="score" value="5">5</label>
+          <label><input type="radio" name="score" value="6">6</label>
+          <label><input type="radio" name="score" value="7">7</label>
+          <label><input type="radio" name="score" value="8">8</label>
+          <label><input type="radio" name="score" value="9">9</label>
+          <label><input type="radio" name="score" value="10">10</label>
+        </div>
+      </fieldset>
+      <label class="survey-field">
+        <span>Что можно улучшить?</span>
+        <textarea id="survey-comment" name="comment" rows="5" maxlength="2000" placeholder="Напишите своими словами. Можно оставить пустым."></textarea>
+      </label>
+      <p id="survey-status" class="survey-status" role="status" hidden></p>
+      <button type="submit" id="survey-submit" class="queue-modal-close">Отправить ответ</button>
+    </form>
   </section>
 </main>
 <footer>ПрофМед · Кабинеты профосмотра · При затруднении обратитесь к администратору.</footer>

@@ -34,7 +34,7 @@ const FLOORS={
     {id:'win-3',name:'Окно 3',short:'Окно 3',label:[872,449],door:[892,374],window:true},
     {id:'wardrobe',name:'Гардероб',short:'Гардероб',label:[965,446],door:[997,374],window:true},
     {id:'wc-2',name:'Туалет',short:'Туалет',label:[482,460],door:[485,389]},
-    {id:'20',name:'Аудиометрия',label:[650,897],door:[590,890],via:[[552,345],[552,890]]}
+    {id:'20',name:'Спирометрия и аудиометрия',short:'Кабинет 20',label:[650,897],door:[590,890],via:[[552,345],[552,890]]}
   ]}
 };
 const SERVICE_ZONES={
@@ -44,7 +44,7 @@ const SERVICE_ZONES={
   ],
   3:[]
 };
-const QR_POINTS={
+const LANDMARKS={
   stairs2:{name:'Лестница · 2 этаж',floor:2,position:FLOORS[2].stair},
   hall2:{name:'Главный коридор · 2 этаж',floor:2,position:FLOORS[2].hall},
   stairs3:{name:'Лестница · 3 этаж',floor:3,position:FLOORS[3].stair},

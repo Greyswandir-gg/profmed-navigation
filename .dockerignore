@@ -1,0 +1,9 @@
+.git
+deploy
+Dockerfile
+docker-compose.yml
+.dockerignore
+README.md
+.env
+data
+app/__pycache__
